@@ -12,17 +12,15 @@ body {
   line-height: 1.6;
   scroll-behavior: smooth;
 }
-
-/* Navbar */
 /* Navbar */
 .navbar {
   display: flex;
-  justify-content: space-between; /* logo left, links right */
+  justify-content: space-between;
   align-items: center;
   padding: 0.5rem 1.5rem;
-  background: rgba(0, 0, 0, 0.4); /* semi-transparent */
-  border-radius: 50px;             /* capsule shape */
-  backdrop-filter: blur(10px);     /* glass effect */
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 50px;
+  backdrop-filter: blur(10px);
   position: sticky;
   top: 20px;
   margin: 10px auto;
@@ -30,7 +28,7 @@ body {
   z-index: 1000;
 }
 
-/* Logo - keep Borel font and custom icon color */
+/* Logo */
 .navbar .logo {
   font-family: 'Poppins', sans-serif;
   font-size: 1.8rem;
@@ -40,10 +38,9 @@ body {
   align-items: center;
   gap: 0.5rem;
 }
-
 .navbar .logo i {
   font-size: 1.5rem;
-  color: #00aaff; /* keep your chosen icon color */
+  color: #00aaff;
 }
 
 /* Navbar links */
@@ -51,44 +48,123 @@ body {
   display: flex;
   list-style: none;
   gap: 1.8rem;
-  margin-left: auto; /* push links to right corner */
+  margin-left: auto;
 }
-
 .navbar a {
   text-decoration: none;
   color: #fff;
   font-weight: bold;
   padding: 0.4rem 1rem;
-  border-radius: 25px; /* rounded-pill on hover */
+  border-radius: 25px;
   transition: all 0.3s ease;
 }
-
 .navbar a:hover {
   color: #000;
   background: #ffdd00;
   box-shadow: 0 0 10px #ffdd00;
 }
 
-/* Responsive */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 50px;
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 20px;
+  margin: 10px auto;
+  max-width: 1100px;
+  z-index: 1000;
+}
+
+.navbar .logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 5px #00aaff;
+}
+
+/* Hide hamburger on desktop */
+.menu-toggle {
+  display: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #fff;
+}
+
+/* Navbar links */
+#navLinks {
+  display: flex;
+  list-style: none;
+  gap: 1.8rem;
+}
+
+#navLinks li a {
+  text-decoration: none;
+  color: #fff;
+  font-weight: bold;
+  padding: 0.4rem 1rem;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+}
+
+#navLinks li a:hover {
+  color: #000;
+  background: #ffdd00;
+  box-shadow: 0 0 10px #ffdd00;
+}
+
+/* Show hamburger + mobile dropdown */
 @media (max-width: 900px) {
-  .navbar {
-    flex-direction: column;
-    padding: 1rem;
+  .menu-toggle {
+    display: block; /* only visible on mobile */
   }
-  .navbar ul {
+
+  #navLinks {
+    display: none;
     flex-direction: column;
     gap: 1rem;
-    margin-top: 0.5rem;
+    margin-top: 1rem;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 1rem;
+    border-radius: 15px;
+  }
+
+  #navLinks.show {
+    display: flex;
   }
 }
 
-#modeToggle {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: #5862f6;
-  margin-left: 1rem; /* spacing from links */
+/* Responsive (mobile < 900px) */
+@media (max-width: 900px) {
+  .navbar {
+    flex-wrap: wrap;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .navbar ul {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    text-align: center;
+    background: rgba(0,0,0,0.8);
+    border-radius: 15px;
+    padding: 1rem 0;
+    margin-top: 10px;
+  }
+
+  .navbar ul.show {
+    display: flex;
+  }
+
+  .navbar ul li {
+    margin: 0.5rem 0;
+  }
 }
 
 
@@ -202,22 +278,32 @@ body {
   }
 }
 /* Footer */
-.footer {
-  background: #222; /* dark footer */
-  color: #fff;
+footer {
   text-align: center;
-  padding: 15px 10px;
-  margin-top: 40px;
-  font-size: 14px;
-}
-
-.footer a {
-  color: #6a0dad; /* purple to match theme */
-  text-decoration: none;
-  margin: 0 10px;
-  transition: 0.3s;
-}
-
-.footer a:hover {
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.6); /* semi-transparent glass look */
   color: #fff;
+  font-size: 0.9rem;
+  margin-top: 2rem;
+  border-radius: 20px 20px 0 0; /* rounded top corners */
+}
+
+/* Social Icons */
+footer .socials {
+  margin-top: 0.8rem;
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+}
+
+footer .socials a {
+  color: #fff;
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+footer .socials a:hover {
+  color: #ffdd00; /* matches navbar hover */
+  transform: scale(1.2);
+  text-shadow: 0 0 10px #ffdd00;
 }
