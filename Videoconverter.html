@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+      <link href="https://fonts.googleapis.com/css2?family=Borel&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video to Audio Converter</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #dropArea {
+      background: rgba(0,0,0,0.3);
+      padding: 30px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    #dropArea.hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 20px #00aaff, 0 0 40px #6a0dad;
+    }
+    #status {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .spinner {
+      border: 4px solid rgba(255,255,255,0.2);
+      border-top: 4px solid #ffdd00;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-left: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+  </style>
+</head>
+<body>
+  <div class="features">
+    <h1 style="font-family: 'Borel', sans-serif; font-size: 3rem; margin-bottom: 1rem;">Video to Audio Converter</h1>
+    <div class="feature-card">
+      <!-- Drag & Drop -->
+      <div id="dropArea">Drag & Drop Video Here or Click to Upload</div>
+      <input type="file" id="fileInput" accept="video/*" style="display:none;">
+
+      <!-- Video preview -->
+      <video id="videoPreview" controls style="width:100%; margin-top:15px; display:none;"></video>
+
+      <!-- Convert Button outside drop area -->
+      <div style="margin-top:20px;">
+        <button id="convertBtn" class="btn">Convert to Audio</button>
+      </div>
+
+      <p id="status"></p>
+    </div>
+  </div>
+
+  <script>
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('fileInput');
+    const videoPreview = document.getElementById('videoPreview');
+    const convertBtn = document.getElementById('convertBtn');
+    const statusText = document.getElementById('status');
+
+    let videoFile;
+
+    // Drag & Drop
+    dropArea.addEventListener('click', () => fileInput.click());
+    dropArea.addEventListener('dragover', e => { e.preventDefault(); dropArea.classList.add('hover'); });
+    dropArea.addEventListener('dragleave', () => dropArea.classList.remove('hover'));
+    dropArea.addEventListener('drop', e => { e.preventDefault(); dropArea.classList.remove('hover'); handleFile(e.dataTransfer.files[0]); });
+
+    fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+    function handleFile(file) {
+      if (!file.type.startsWith('video/')) return alert('Please upload a video file');
+      videoFile = file;
+      const videoURL = URL.createObjectURL(file);
+      videoPreview.src = videoURL;
+      videoPreview.style.display = 'block';
+      statusText.textContent = '';
+    }
+
+    convertBtn.addEventListener('click', async () => {
+      if (!videoFile) return alert('Please upload a video first');
+
+      statusText.innerHTML = "Converting... <span class='spinner'></span>";
+
+      const videoElement = document.createElement('video');
+      videoElement.src = URL.createObjectURL(videoFile);
+
+      videoElement.onloadedmetadata = () => {
+        const stream = videoElement.captureStream();
+        const audioTracks = stream.getAudioTracks();
+        if (!audioTracks.length) return alert('No audio track found in video');
+
+        const audioStream = new MediaStream(audioTracks);
+        const recorder = new MediaRecorder(audioStream, { mimeType: 'audio/webm' });
+        const chunks = [];
+
+        recorder.ondataavailable = e => chunks.push(e.data);
+        recorder.onstop = () => {
+          const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(audioBlob);
+          a.download = `${videoFile.name.split('.')[0]}.webm`;
+          a.click();
+          statusText.textContent = "Conversion complete!";
+        };
+
+        recorder.start();
+        videoElement.play();
+        videoElement.onended = () => recorder.stop();
+      };
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Borel&display=swap" rel="stylesheet">
+  <title>Image Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      text-align: center;
+    }
+    input, select, button {
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+    }
+    #dropArea {
+      border: 2px dashed #aaa;
+      padding: 30px;
+      margin: 20px 0;
+      cursor: pointer;
+    }
+    #dropArea.hover {
+      border-color: #333;
+    }
+    .preview-container img {
+      max-width: 100px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="font-family: 'Borel', sans-serif; font-size: 3rem; margin-bottom: 1rem;">Image Converter</h1>
+
+  <div id="dropArea">Drag & Drop Image(s) Here or Click to Upload</div>
+  <input type="file" id="fileInput" accept="image/*" multiple style="display:none;">
+
+  <label for="toFormat">Convert to:</label>
+  <select id="toFormat">
+    <option value="png">PNG</option>
+    <option value="jpeg">JPG</option>
+    <option value="webp">WEBP</option>
+  </select><br>
+
+  <button id="convertBtn">Convert All Images</button>
+
+  <h3>Preview:</h3>
+  <div class="preview-container" id="previewContainer"></div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const dropArea = document.getElementById('dropArea');
+    const toFormat = document.getElementById('toFormat');
+    const convertBtn = document.getElementById('convertBtn');
+    const previewContainer = document.getElementById('previewContainer');
+
+    let files = [];
+
+    // Drag & Drop handlers
+    dropArea.addEventListener('click', () => fileInput.click());
+
+    dropArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropArea.classList.add('hover');
+    });
+
+    dropArea.addEventListener('dragleave', () => dropArea.classList.remove('hover'));
+
+    dropArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropArea.classList.remove('hover');
+      handleFiles(e.dataTransfer.files);
+    });
+
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+    function handleFiles(selectedFiles) {
+      for (const file of selectedFiles) {
+        if (!file.type.startsWith('image/')) continue;
+        files.push(file);
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          previewContainer.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    convertBtn.addEventListener('click', () => {
+      if (!files.length) return alert('Please upload at least one image');
+      const format = toFormat.value;
+
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            canvas.toBlob((blob) => {
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(blob);
+              a.download = `${file.name.split('.')[0]}_converted.${format}`;
+              a.click();
+            }, `image/${format}`);
+          };
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+  </script>
+</body>
+</html>

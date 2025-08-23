@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Borel&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extract Text from Image</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+  <style>
+    #dropArea {
+      background: rgba(0,0,0,0.3);
+      padding: 30px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    #dropArea.hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 20px #00aaff, 0 0 40px #6a0dad;
+    }
+    #status {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .spinner {
+      border: 4px solid rgba(255,255,255,0.2);
+      border-top: 4px solid #ffdd00;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-left: 10px;
+    }
+    #outputText {
+      width: 100%;
+      height: 200px;
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 10px;
+      resize: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="features">
+    <h1 style="font-family: 'Borel', sans-serif; font-size: 3rem; margin-bottom: 1rem;">Extract Text from Image</h1>
+    <div class="feature-card">
+      <div id="dropArea">Drag & Drop Image Here or Click to Upload</div>
+      <input type="file" id="fileInput" accept="image/*" style="display:none;">
+      <img id="imgPreview" src="" style="width:100%; margin-top:15px; display:none; border-radius:10px;">
+      
+      <div style="margin-top:20px;">
+        <button type="button" id="extractBtn" class="btn">Extract Text</button>
+      </div>
+      <p id="status"></p>
+      <textarea id="outputText" placeholder="Extracted text will appear here..." readonly></textarea>
+    </div>
+  </div>
+
+  <script>
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('fileInput');
+    const imgPreview = document.getElementById('imgPreview');
+    const extractBtn = document.getElementById('extractBtn');
+    const statusText = document.getElementById('status');
+    const outputText = document.getElementById('outputText');
+    let selectedImage;
+
+    dropArea.addEventListener('click', () => fileInput.click());
+    dropArea.addEventListener('dragover', e => { e.preventDefault(); dropArea.classList.add('hover'); });
+    dropArea.addEventListener('dragleave', () => dropArea.classList.remove('hover'));
+    dropArea.addEventListener('drop', e => { e.preventDefault(); dropArea.classList.remove('hover'); handleFile(e.dataTransfer.files[0]); });
+    fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+    function handleFile(file) {
+      if(!file.type.startsWith('image/')) return alert('Please upload an image file');
+      selectedImage = file;
+      imgPreview.src = URL.createObjectURL(file);
+      imgPreview.style.display = 'block';
+      statusText.textContent = '';
+      outputText.value = '';
+    }
+
+    extractBtn.addEventListener('click', async () => {
+      if(!selectedImage) return alert('Please upload an image first');
+      statusText.innerHTML = "Extracting text... <span class='spinner'></span>";
+      outputText.value = '';
+
+      try {
+        const { data: { text } } = await Tesseract.recognize(selectedImage, 'eng', { logger: m => console.log(m) });
+        outputText.value = text;
+        statusText.textContent = "Text extraction complete!";
+      } catch (err) {
+        console.error(err);
+        statusText.textContent = '';
+        alert('Error extracting text');
+      }
+    });
+  </script>
+</body>
+</html>
